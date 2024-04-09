@@ -40,14 +40,40 @@
 
 <script>
 -function () {
-    var $form = document.querySelector('.js-goseigen-secretsofgrindea')
+    var rootHtmlSelector = '.js-goseigen-secretsofgrindea'
+    var $form = document.querySelector(rootHtmlSelector)
     var $signs = $form.querySelector('.js-signs')
     var $numbers = $form.querySelector('.js-numbers')
     var $expectedAnswer = $form.querySelector('.js-expected-answer')
     var $solve = $form.querySelector('.js-solve')
     var $output = $form.querySelector('.js-output')
 
-    $solve.addEventListener('click', function () {
+    var memory = [
+        $signs,
+        $numbers,
+        $expectedAnswer,
+    ]
+
+    for (var i = 0; i < memory.length; i++) {
+        try {
+            var $el = memory[i]
+            var value = getValueFromMemory($el)
+            if ('string' === typeof value) {
+                $el.value = value
+            }
+        } catch (e) {}
+    }
+
+    $solve.addEventListener('click', onSolve)
+    $signs.addEventListener('input', onType)
+    $numbers.addEventListener('input', onType)
+    $expectedAnswer.addEventListener('input', onType)
+
+    function onType(event) {
+        setValueFromMemory(event.target)
+    }
+
+    function onSolve() {
         $output.textContent = 'Solving...'
 
         setTimeout(function () {
@@ -64,7 +90,19 @@
                 $output.textContent += answer.gameAnswer.replace(/(\D)/g, ' $1 ') + '\n'
             }
         }, 10)
-    })
+    }
+
+    function getKeyForMemory($el) {
+        return rootHtmlSelector + '-' + $el.className
+    }
+
+    function getValueFromMemory($el) {
+        return localStorage.getItem(getKeyForMemory($el))
+    }
+
+    function setValueFromMemory($el) {
+        return localStorage.setItem(getKeyForMemory($el), $el.value)
+    }
 }()
 </script>
 
