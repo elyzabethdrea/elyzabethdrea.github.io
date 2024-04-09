@@ -48,20 +48,22 @@
     var $output = $form.querySelector('.js-output')
 
     $solve.addEventListener('click', function () {
-        $output.textContent = 'Loading...'
+        $output.textContent = 'Solving...'
 
-        var answers = mod.goseigenSecretsofgrindea.solve(
-            $signs.value,
-            $numbers.value,
-            parseInt($expectedAnswer.value)
-        )
+        setTimeout(function () {
+            var answers = mod.goseigenSecretsofgrindea.solve(
+                $signs.value,
+                $numbers.value,
+                parseInt($expectedAnswer.value)
+            )
 
-        $output.textContent = 'Total = ' + answers.length + '\n'
+            $output.textContent = 'Total = ' + answers.length + '\n'
 
-        for (var i = 0; i < answers.length; i++) {
-            var answer = answers[i]
-            $output.textContent += answer.gameAnswer.replace(/(\D)/g, ' $1 ') + '\n'
-        }
+            for (var i = 0; i < answers.length; i++) {
+                var answer = answers[i]
+                $output.textContent += answer.gameAnswer.replace(/(\D)/g, ' $1 ') + '\n'
+            }
+        }, 1)
     })
 }()
 </script>
