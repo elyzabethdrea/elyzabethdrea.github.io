@@ -119,8 +119,14 @@ mod.goseigenSecretsofgrindea = (function () {
             answers.push(nums[0] + signs[0] + nums[1])
             answers.push(nums[1] + signs[0] + nums[0])
         } else {
-            var numsInterpolation = mod.interpolation(nums)
+            var uniqueSi = {}
             var signsInterpolation = mod.interpolation(signs)
+            for (var i = 0; i < signsInterpolation.length; i++) {
+                uniqueSi[signsInterpolation[i]] = 1
+            }
+            signsInterpolation = Object.keys(uniqueSi)
+
+            var numsInterpolation = mod.interpolation(nums)
 
             for (var i = 0; i < numsInterpolation.length; i++) {
                 for (var j = 0; j < numsInterpolation[i].length; j++) {
