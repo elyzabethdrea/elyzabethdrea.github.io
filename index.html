@@ -126,7 +126,12 @@ mod.goseigenSecretsofgrindea = (function () {
             }
             signsInterpolation = Object.keys(uniqueSi)
 
+            var uniqueNums = {}
             var numsInterpolation = mod.interpolation(nums)
+            for (var i = 0; i < numsInterpolation.length; i++) {
+                uniqueNums[numsInterpolation[i]] = 1
+            }
+            numsInterpolation = Object.keys(uniqueNums)
 
             for (var i = 0; i < numsInterpolation.length; i++) {
                 for (var j = 0; j < numsInterpolation[i].length; j++) {
