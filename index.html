@@ -1,9 +1,9 @@
 <fieldset class="js-goseigen-secretsofgrindea">
     <legend>goseigen-secretsofgrindea</legend>
-    <div>
+    <form>
         <div>
             <label>
-                <span>Signs</span>
+                <span>Signs:</span>
                 <input autofocus value="+x+-" class="js-signs">
             </label>
             <span>Ex.: +x+-</span>
@@ -11,7 +11,7 @@
 
         <div>
             <label>
-                <span>Numbers</span>
+                <span>Numbers:</span>
                 <input value="74291" type="number" class="js-numbers">
             </label>
             <span>Ex.: 74291</span>
@@ -19,29 +19,30 @@
 
         <div>
             <label>
-                <span>Expected answer</span>
+                <span>Expected answer:</span>
                 <input value="41" type="number" class="js-expected-answer">
             </label>
             <span>Ex.: 41</span>
         </div>
 
         <div>
-            <label>
-                <span>Output</span>
-                <pre class="js-output"></pre>
-            </label>
+            <button class="js-solve">Solve</button>
         </div>
 
         <div>
-            <button class="js-solve">Solve</button>
+            <label>
+                <span>Output:</span>
+                <pre class="js-output"></pre>
+            </label>
         </div>
-    </div>
+    </form>
 </fieldset>
 
 <script>
 -function () {
     var rootHtmlSelector = '.js-goseigen-secretsofgrindea'
-    var $form = document.querySelector(rootHtmlSelector)
+    var $section = document.querySelector(rootHtmlSelector)
+    var $form = $section.querySelector('form')
     var $signs = $form.querySelector('.js-signs')
     var $numbers = $form.querySelector('.js-numbers')
     var $expectedAnswer = $form.querySelector('.js-expected-answer')
@@ -64,7 +65,7 @@
         } catch (e) {}
     }
 
-    $solve.addEventListener('click', onSolve)
+    $form.addEventListener('submit', onSolve)
     $signs.addEventListener('input', onType)
     $numbers.addEventListener('input', onType)
     $expectedAnswer.addEventListener('input', onType)
@@ -73,7 +74,8 @@
         setValueFromMemory(event.target)
     }
 
-    function onSolve() {
+    function onSolve(event) {
+        event.preventDefault()
         $output.textContent = 'Solving...'
 
         setTimeout(function () {
@@ -83,11 +85,15 @@
                 parseInt($expectedAnswer.value)
             )
 
-            $output.textContent = 'Total = ' + answers.length + '\n'
+            if (Array.isArray(answers)) {
+                $output.textContent = 'Total = ' + answers.length + '\n'
 
-            for (var i = 0; i < answers.length; i++) {
-                var answer = answers[i]
-                $output.textContent += answer.gameAnswer.replace(/(\D)/g, ' $1 ') + '\n'
+                for (var i = 0; i < answers.length; i++) {
+                    var answer = answers[i]
+                    $output.textContent += $expectedAnswer.value + ' = ' + answer.gameAnswer.replace(/(\D)/g, ' $1 ') + '\n'
+                }
+            } else {
+                $output.textContent = 'Error solving: ' + answers.message
             }
         }, 10)
     }
@@ -132,23 +138,25 @@ mod.goseigenSecretsofgrindea = (function () {
     }
 
     mod.solve = function (signs, nums, ans) {
-        if (!('string' === typeof(signs) && signs.length > 0)) return false
-        if (!('string' === typeof(nums) && nums.length > 0)) return false
-        if (!(Number.isFinite(ans) && ans === ~~ans)) return false
-        if (!(signs.length + 1 === nums.length)) return false
+        if (!('string' === typeof(signs) && signs.length > 0)) return new Error('signs must be a valid string')
+        if (!('string' === typeof(nums) && nums.length > 0)) return new Error('numbers must be a valid string')
+        if (!(Number.isFinite(ans) && ans === ~~ans)) return new Error('expected answer must be a valid integer')
+        if (!(signs.length + 1 === nums.length)) return new Error('the amount of numbers must be 1 more than the amount of signs')
 
         signs = signs.split('')
+        var validSigns = ['+', 'x', '-']
         var areAllValidSigns = signs.every(function (sign) {
-            return sign === 'x' || sign === '+' || sign === '-'
+            return ~validSigns.includes(sign)
         })
-        if (!areAllValidSigns) return false
+        if (!areAllValidSigns) return new Error('the valid signs can only be: ' + validSigns.join(' '))
         signs = signs.map(function (sign) { return sign === 'x' ? '*' : sign })
 
         nums = nums.split('')
+        var validNums = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
         var areAllValidNums = nums.every(function (num) {
-            return num === '1' || num === '2' || num === '3' || num === '4' || num === '5' || num === '6' || num === '7' || num === '8' || num === '9'
+            return ~validNums.includes(num)
         })
-        if (!areAllValidNums) return false
+        if (!areAllValidNums) return new Error('the valid signs can only be: ' + validNums.join(' '))
 
         var uniqueAnswers = {}
         var answers = []
