@@ -148,7 +148,7 @@ mod.goseigenSecretsofgrindea = (function () {
         var areAllValidSigns = signs.every(function (sign) {
             return validSigns.includes(sign)
         })
-        if (!areAllValidSigns) return new Error('the valid signs can only be: ' + validSigns.join(' '))
+        if (!areAllValidSigns) return new Error('the only valid signs are: ' + validSigns.join(' '))
         signs = signs.map(function (sign) { return sign === 'x' ? '*' : sign })
 
         nums = nums.split('')
@@ -156,7 +156,7 @@ mod.goseigenSecretsofgrindea = (function () {
         var areAllValidNums = nums.every(function (num) {
             return validNums.includes(num)
         })
-        if (!areAllValidNums) return new Error('the valid signs can only be: ' + validNums.join(' '))
+        if (!areAllValidNums) return new Error('the only valid numbers are: ' + validNums.join(' '))
 
         var uniqueAnswers = {}
         var answers = []
