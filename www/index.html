@@ -194,10 +194,13 @@
         } catch (error) {}
     }
 
+    function isProd() {
+        return location.hostname === 'elyzabethdrea.github.io'
+    }
+
     function addMainScript() {
         var $src = document.createElement('script')
-        $src.src = '/app.js'
-        if (location.hostname === 'elyzabethdrea.github.io') $src.src = '/www/app.js'
+        $src.src = isProd() ? '/www/app.js' : '/app.js'
         document.body.appendChild($src)
     }
 }()
