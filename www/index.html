@@ -1,0 +1,197 @@
+<fieldset class="js-goseigen-secretsofgrindea">
+    <legend>goseigen-secretsofgrindea</legend>
+    <form>
+        <div>
+            <label>
+                <span>Signs:</span>
+                <input autofocus value="+x+-" class="js-signs">
+            </label>
+            <span>Ex.: +x+-</span>
+        </div>
+
+        <div>
+            <label>
+                <span>Numbers:</span>
+                <input value="74291" type="number" class="js-numbers">
+            </label>
+            <span>Ex.: 74291</span>
+        </div>
+
+        <div>
+            <label>
+                <span>Expected answer:</span>
+                <input value="41" type="number" class="js-expected-answer">
+            </label>
+            <span>Ex.: 41</span>
+        </div>
+
+        <div>
+            <label>
+                <span>Use web worker?</span>
+                <input type="checkbox" class="js-use-webworker">
+            </label>
+        </div>
+
+        <div>
+            <button class="js-solve">Solve</button>
+        </div>
+
+        <div>
+            <label>
+                <span>Output:</span>
+                <pre class="js-output"></pre>
+            </label>
+        </div>
+    </form>
+</fieldset>
+
+<script>
+-function () {
+    var rootHtmlSelector = '.js-goseigen-secretsofgrindea'
+    var $section = document.querySelector(rootHtmlSelector)
+    var $form = $section.querySelector('form')
+    var $signs = $form.querySelector('.js-signs')
+    var $numbers = $form.querySelector('.js-numbers')
+    var $expectedAnswer = $form.querySelector('.js-expected-answer')
+    var $solve = $form.querySelector('.js-solve')
+    var $output = $form.querySelector('.js-output')
+    var $useWebWorker = $form.querySelector('.js-use-webworker')
+
+    var memory = [
+        $signs,
+        $numbers,
+        $expectedAnswer,
+        $useWebWorker,
+    ]
+
+    for (var i = 0; i < memory.length; i++) {
+        try {
+            var $el = memory[i]
+            var value = getValueFromMemory($el)
+            if ($el.type === 'checkbox') {
+                $el.checked = value
+            } else if ('string' === typeof value) {
+                $el.value = value
+            }
+        } catch (e) {}
+    }
+
+    $form.addEventListener('submit', onSolve)
+    $signs.addEventListener('input', onType)
+    $numbers.addEventListener('input', onType)
+    $expectedAnswer.addEventListener('input', onType)
+    $useWebWorker.addEventListener('change', onType)
+
+    function onType(event) {
+        setValueOnMemory(event.target)
+    }
+
+    function putAnswers(result, duration) {
+        $output.textContent = ''
+        $output.textContent += 'Duration = ' + duration + 'ms\n'
+
+        try {
+            if (result instanceof Error) throw result
+            result = result.trim()
+            var totalAnswers = result.length
+            $output.textContent += 'Total = ' + totalAnswers + '\n'
+            $output.textContent += result
+        } catch (error) {
+            $output.textContent += 'Error solving: ' + error.message
+        }
+    }
+
+    function onSolve(event) {
+        event.preventDefault()
+        if ($solve.disabled) return;
+
+        for (var i = 0; i < memory.length; i++) memory[i].disabled = true
+        $solve.disabled = true
+
+        $output.textContent = 'Solving...'
+        var startMs = -Date.now()
+        var ref = setInterval(function () {
+            $output.textContent = 'Solving (' + getDuration() + 'ms)...'
+        }, 1e3)
+
+        function getDuration() {
+            return startMs + Date.now()
+        }
+
+        function pa(result) {
+            for (var i = 0; i < memory.length; i++) memory[i].disabled = false
+            $solve.disabled = false
+
+            clearInterval(ref)
+            putAnswers(result, getDuration())
+        }
+
+        if ($useWebWorker.checked) {
+            mod.workers.goseigenSecretsofgrindea.onmessage = function (event) {
+                console.log('WORKER RESPONSE RECEIVED', Date.now())
+                pa(event.data)
+            }
+
+            var nowMs = Date.now()
+            console.log('WORKER REQUEST SENDING', nowMs)
+            mod.workers.goseigenSecretsofgrindea.postMessage([
+                $signs.value,
+                $numbers.value,
+                parseInt($expectedAnswer.value),
+            ])
+        } else {
+            setTimeout(function () {
+                try {
+                    var answers = mod.fun.goseigenSecretsofgrindea.solve(
+                        $signs.value,
+                        $numbers.value,
+                        parseInt($expectedAnswer.value),
+                    )
+                    if (answers instanceof Error) {
+                        pa(answers)
+                    } else {
+                        var lines = answers.map(function (answer) {
+                            return answer.line.trim()
+                        }).join('\n').trim()
+                        pa(lines)
+                    }
+                } catch (error) {
+                    pa(error)
+                }
+            }, 1)
+        }
+    }
+
+    function getKeyForMemory($el) {
+        return rootHtmlSelector + '-' + $el.className
+    }
+
+    function getValueFromMemory($el) {
+        try {
+            var value = localStorage.getItem(getKeyForMemory($el))
+            if ($el.type === 'checkbox') {
+                return value === 'true'
+            }
+            return value
+        } catch (error) {}
+    }
+
+    function getValueForMemory($el) {
+        if ($el.type === 'checkbox') {
+            return $el.checked
+        } else {
+            return $el.value
+        }
+    }
+
+    function setValueOnMemory($el) {
+        try {
+            var key = getKeyForMemory($el)
+            var value = getValueForMemory($el)
+            return localStorage.setItem(key, value)
+        } catch (error) {}
+    }
+}()
+</script>
+
+<script src="/app.js"></script>
