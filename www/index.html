@@ -57,6 +57,8 @@
     var $output = $form.querySelector('.js-output')
     var $useWebWorker = $form.querySelector('.js-use-webworker')
 
+    addMainScript()
+
     var memory = [
         $signs,
         $numbers,
@@ -191,7 +193,12 @@
             return localStorage.setItem(key, value)
         } catch (error) {}
     }
+
+    function addMainScript() {
+        var $src = document.createElement('script')
+        $src.src = '/app.js'
+        if (location.hostname === 'elyzabethdrea.github.io') $src.src = '/www/app.js'
+        document.body.appendChild($src)
+    }
 }()
 </script>
-
-<script src="/app.js"></script>
