@@ -114,6 +114,7 @@
     $useWebWorker.addEventListener('change', onType)
 
     $totpSolve.addEventListener('click', onTotpSolve)
+    $totpSecret.addEventListener('input', onType)
     
     function onTotpSolve(event) {
         event.preventDefault()
