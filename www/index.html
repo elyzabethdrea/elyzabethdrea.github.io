@@ -116,6 +116,7 @@
     $totpSolve.addEventListener('click', onTotpSolve)
     
     function onTotpSolve(event) {
+        event.preventDefault()
         var secret = $totpSecret.value
         var totp = new OTPAuth.TOTP({
             secret: secret,
