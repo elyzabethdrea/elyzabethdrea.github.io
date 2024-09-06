@@ -45,7 +45,7 @@
     </form>
 </fieldset>
 
-<fieldset class="js-goseigen-secretsofgrindea">
+<fieldset class="otpauth">
     <legend>2fa Time-based One-time Password (subset of HMAC-based One-time Password)</legend>
     <form>
         <div>
@@ -80,9 +80,10 @@
     var $output = $form.querySelector('.js-output')
     var $useWebWorker = $form.querySelector('.js-use-webworker')
 
-    var $totpSecret = $form.querySelector('.js-totp-secret')
-    var $totpSolve = $form.querySelector('.js-totp-solve')
-    var $totpOutput = $form.querySelector('.js-totp-output')
+    var $otpauth = $section.querySelector('form.otpauth')
+    var $totpSecret = $otpauth.querySelector('.js-totp-secret')
+    var $totpSolve = $otpauth.querySelector('.js-totp-solve')
+    var $totpOutput = $otpauth.querySelector('.js-totp-output')
 
     addMainScript()
 
