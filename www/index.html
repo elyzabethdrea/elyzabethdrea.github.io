@@ -47,25 +47,27 @@
 
 <fieldset class="otpauth">
     <legend>2fa Time-based One-time Password (subset of HMAC-based One-time Password)</legend>
-    <form>
-        <div>
-            <label>
-                <span>Secret:</span>
-                <input autofocus value class="js-totp-secret">
-            </label>
-        </div>
+    <template id="js-totp-template">
+        <form>
+            <div>
+                <label>
+                    <span>Secret:</span>
+                    <input autofocus value class="js-totp-secret">
+                </label>
+            </div>
 
-        <div>
-            <button class="js-totp-solve">Solve</button>
-        </div>
+            <div>
+                <button class="js-totp-solve">Solve</button>
+            </div>
 
-        <div>
-            <label>
-                <span>Output:</span>
-                <input class="js-totp-output">
-            </label>
-        </div>
-    </form>
+            <div>
+                <label>
+                    <span>Output:</span>
+                    <input class="js-totp-output">
+                </label>
+            </div>
+        </form>
+    </template>
 </fieldset>
 
 <script>
@@ -80,6 +82,7 @@
     var $output = $form.querySelector('.js-output')
     var $useWebWorker = $form.querySelector('.js-use-webworker')
 
+    //var $totpTemplate = document.querySelector('fieldset.otpauth #js-totp-template')
     //var $otpauth = document.querySelector('fieldset.otpauth form')
     //var $totpSecret = $otpauth.querySelector('.js-totp-secret')
     //var $totpSolve = $otpauth.querySelector('.js-totp-solve')
