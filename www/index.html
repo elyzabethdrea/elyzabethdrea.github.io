@@ -80,10 +80,10 @@
     var $output = $form.querySelector('.js-output')
     var $useWebWorker = $form.querySelector('.js-use-webworker')
 
-    var $otpauth = document.querySelector('fieldset.otpauth form')
-    var $totpSecret = $otpauth.querySelector('.js-totp-secret')
-    var $totpSolve = $otpauth.querySelector('.js-totp-solve')
-    var $totpOutput = $otpauth.querySelector('.js-totp-output')
+    //var $otpauth = document.querySelector('fieldset.otpauth form')
+    //var $totpSecret = $otpauth.querySelector('.js-totp-secret')
+    //var $totpSolve = $otpauth.querySelector('.js-totp-solve')
+    //var $totpOutput = $otpauth.querySelector('.js-totp-output')
 
     addMainScript()
 
@@ -92,7 +92,7 @@
         $numbers,
         $expectedAnswer,
         $useWebWorker,
-        $totpSecret,
+        //$totpSecret,
     ]
 
     for (var i = 0; i < memory.length; i++) {
@@ -113,8 +113,8 @@
     $expectedAnswer.addEventListener('input', onType)
     $useWebWorker.addEventListener('change', onType)
 
-    $totpSolve.addEventListener('click', onTotpSolve)
-    $totpSecret.addEventListener('input', onType)
+    //$totpSolve.addEventListener('click', onTotpSolve)
+    //$totpSecret.addEventListener('input', onType)
     
     function onTotpSolve(event) {
         event.preventDefault()
