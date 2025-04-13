@@ -62,7 +62,7 @@
         <div>
             <label>
                 <span>Output:</span>
-                <pre class="js-totp-output"></pre>
+                <input class="js-totp-output">
             </label>
         </div>
     </form>
@@ -122,7 +122,7 @@
         var totp = new OTPAuth.TOTP({
             secret: secret,
         })
-        $totpOutput.textContent = totp.generate()
+        $totpOutput.value = totp.generate()
     }
     
     function onType(event) {
