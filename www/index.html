@@ -47,7 +47,7 @@
 
 <fieldset class="otpauth">
     <legend>2fa Time-based One-time Password (subset of HMAC-based One-time Password)</legend>
-    <template id="js-totp-template">
+    <div id="js-totp-template">
         <form>
             <div>
                 <label>
@@ -67,7 +67,7 @@
                 </label>
             </div>
         </form>
-    </template>
+    </div>
 </fieldset>
 
 <script>
@@ -82,11 +82,11 @@
     var $output = $form.querySelector('.js-output')
     var $useWebWorker = $form.querySelector('.js-use-webworker')
 
-    //var $totpTemplate = document.querySelector('fieldset.otpauth #js-totp-template')
-    //var $otpauth = document.querySelector('fieldset.otpauth form')
-    //var $totpSecret = $otpauth.querySelector('.js-totp-secret')
-    //var $totpSolve = $otpauth.querySelector('.js-totp-solve')
-    //var $totpOutput = $otpauth.querySelector('.js-totp-output')
+    var $totpTemplate = document.querySelector('fieldset.otpauth #js-totp-template')
+    var $otpauth = document.querySelector('fieldset.otpauth form')
+    var $totpSecret = $otpauth.querySelector('.js-totp-secret')
+    var $totpSolve = $otpauth.querySelector('.js-totp-solve')
+    var $totpOutput = $otpauth.querySelector('.js-totp-output')
 
     addMainScript()
 
@@ -95,7 +95,7 @@
         $numbers,
         $expectedAnswer,
         $useWebWorker,
-        //$totpSecret,
+        $totpSecret,
     ]
 
     for (var i = 0; i < memory.length; i++) {
@@ -116,8 +116,8 @@
     $expectedAnswer.addEventListener('input', onType)
     $useWebWorker.addEventListener('change', onType)
 
-    //$totpSolve.addEventListener('click', onTotpSolve)
-    //$totpSecret.addEventListener('input', onType)
+    $totpSolve.addEventListener('click', onTotpSolve)
+    $totpSecret.addEventListener('input', onType)
     
     function onTotpSolve(event) {
         event.preventDefault()
