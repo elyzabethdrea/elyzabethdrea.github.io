@@ -4,7 +4,7 @@
         <div>
             <label>
                 <span>Signs:</span>
-                <input autofocus value="+x+-" class="js-signs">
+                <input type="text" autofocus value="+x+-" class="js-signs">
             </label>
             <span>Ex.: +x+-</span>
         </div>
@@ -33,7 +33,7 @@
         </div>
 
         <div>
-            <button class="js-solve">Solve</button>
+            <button type="button" class="js-solve">Solve</button>
         </div>
 
         <div>
@@ -47,27 +47,39 @@
 
 <fieldset class="otpauth">
     <legend>2fa Time-based One-time Password (subset of HMAC-based One-time Password)</legend>
-    <div id="js-totp-template">
+    <div>
+        <button type="button" id="js-totp-add">Add TOTP</button>
+    </div>
+    <hr>
+    <template id="js-totp-template">
         <form>
             <div>
                 <label>
-                    <span>Secret:</span>
-                    <input autofocus value class="js-totp-secret">
+                    <span>Name:</span>
+                    <input type="text" autofocus value class="js-totp-name">
                 </label>
             </div>
 
             <div>
-                <button class="js-totp-solve">Solve</button>
+                <label>
+                    <span>Secret:</span>
+                    <input type="text" autofocus value class="js-totp-secret">
+                </label>
             </div>
 
             <div>
                 <label>
                     <span>Output:</span>
-                    <input class="js-totp-output">
+                    <input type="text" readonly class="js-totp-output">
                 </label>
             </div>
+
+            <div>
+                <button type="button" class="js-totp-solve">Solve</button>
+                <button type="button" class="js-totp-remove">Remove</button>
+            </div>
         </form>
-    </div>
+    </template>
 </fieldset>
 
 <script>
@@ -82,20 +94,14 @@
     var $output = $form.querySelector('.js-output')
     var $useWebWorker = $form.querySelector('.js-use-webworker')
 
-    var $totpTemplate = document.querySelector('fieldset.otpauth #js-totp-template')
-    var $otpauth = document.querySelector('fieldset.otpauth form')
-    var $totpSecret = $otpauth.querySelector('.js-totp-secret')
-    var $totpSolve = $otpauth.querySelector('.js-totp-solve')
-    var $totpOutput = $otpauth.querySelector('.js-totp-output')
-
     addMainScript()
+    loadTotp()
 
     var memory = [
         $signs,
         $numbers,
         $expectedAnswer,
         $useWebWorker,
-        $totpSecret,
     ]
 
     for (var i = 0; i < memory.length; i++) {
@@ -116,16 +122,112 @@
     $expectedAnswer.addEventListener('input', onType)
     $useWebWorker.addEventListener('change', onType)
 
-    $totpSolve.addEventListener('click', onTotpSolve)
-    $totpSecret.addEventListener('input', onType)
-    
-    function onTotpSolve(event) {
-        event.preventDefault()
-        var secret = $totpSecret.value
-        var totp = new OTPAuth.TOTP({
-            secret: secret,
-        })
-        $totpOutput.value = totp.generate()
+    function loadTotp() {
+        function injectTotpHtml($totpTemplate, secret) {
+            function onSolve(event) {
+                var success = onTotpSolve($totpSecret, $totpOutput)
+                if (success) $totpOutput.select()
+            }
+
+            function onRemove() {
+                if (!confirm($totpSecret.value)) return;
+                if ($hr) $rootParent.removeChild($hr)
+                $rootParent.removeChild($otpauth)
+                localStorage.removeItem(secret.key)
+                localStorage.removeItem(genKeyAppendName(secret.key))
+            }
+
+            var $rootParent = $totpTemplate.parentNode
+            var $otpauth = $totpTemplate.content.cloneNode(true).children[0]
+
+            var $hr = null
+            var $totpName = $otpauth.querySelector('.js-totp-name')
+            var $totpSecret = $otpauth.querySelector('.js-totp-secret')
+            var $totpSolve = $otpauth.querySelector('.js-totp-solve')
+            var $totpRemove = $otpauth.querySelector('.js-totp-remove')
+            var $totpOutput = $otpauth.querySelector('.js-totp-output')
+
+            $totpName.setAttribute('name', genKeyAppendName(secret.key))
+            $totpName.value = localStorage.getItem(genKeyAppendName(secret.key))
+            $totpSecret.setAttribute('name', secret.key)
+
+            $totpSolve.addEventListener('click', onSolve)
+            $totpSecret.addEventListener('input', onType)
+            $totpName.addEventListener('input', onType)
+            $totpRemove.addEventListener('click', onRemove)
+
+            $totpSecret.value = secret.value
+
+            if ($totpTemplate.nextElementSibling) {
+                $hr = document.createElement('hr')
+                $rootParent.insertBefore($hr, $totpTemplate.nextElementSibling)
+            }
+
+            $rootParent.insertBefore($otpauth, $totpTemplate.nextElementSibling)
+
+            return $otpauth
+        }
+
+        function onAddTotp() {
+            var $otpauth = injectTotpHtml($totpTemplate, {
+                key: keyPrefix + '-' + Math.random().toString(36).substr(2),
+                value: '',
+            })
+            $otpauth.querySelector('input[type=text]').focus()
+        }
+
+        function genKeyAppendName(key) {
+            var suffix = '-name'
+            if (suffix.length + key.indexOf(suffix) === key.length) return key
+            return key + suffix
+        }
+
+        var $totpAdd = document.querySelector('fieldset.otpauth #js-totp-add')
+        var $totpTemplate = document.querySelector('fieldset.otpauth #js-totp-template')
+         secrets = []
+        var keyPrefix = '.js-goseigen-secretsofgrindea-js-totp-secret'
+
+        for (var i = 0; i < localStorage.length; i++) {
+            var keyName = localStorage.key(i)
+            if (0 !== keyName.indexOf(keyPrefix)) continue
+            if (keyName === genKeyAppendName(keyPrefix)) continue
+            if (0 === keyName.indexOf(genKeyAppendName(keyName))) continue
+            var itemValue = localStorage.getItem(keyName)
+            secrets.push({
+                key: keyName,
+                value: itemValue
+            })
+        }
+
+        if (secrets.length === 0) {
+            secrets.push({
+                key: keyPrefix,
+                value: ''
+            })
+        }
+
+        for (var i = 0; i < secrets.length; i++) {
+            injectTotpHtml($totpTemplate, secrets[i])
+        }
+
+        $totpAdd.addEventListener('click', onAddTotp)
+    }
+
+    function onTotpSolve($totpSecret, $totpOutput) {
+        try {
+            var secret = $totpSecret.value.trim()
+            if (secret.length < 1) return alert('Secret must not be empty')
+            if (!$totpSecret._totp) {
+                $totpSecret._totp = new OTPAuth.TOTP({
+                    secret: secret,
+                })
+            }
+            $totpOutput.value = $totpSecret._totp.generate()
+            return true
+        } catch (error) {
+            $totpOutput.value = error.message
+            return false
+        }
     }
     
     function onType(event) {
@@ -148,7 +250,6 @@
     }
 
     function onSolve(event) {
-        event.preventDefault()
         if ($solve.disabled) return;
 
         for (var i = 0; i < memory.length; i++) memory[i].disabled = true
@@ -209,7 +310,10 @@
     }
 
     function getKeyForMemory($el) {
-        return rootHtmlSelector + '-' + $el.className
+        return $el.name
+            ? $el.name
+            : rootHtmlSelector + '-' + $el.className
+        ;
     }
 
     function getValueFromMemory($el) {
