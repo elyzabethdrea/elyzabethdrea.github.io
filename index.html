@@ -1,8 +1,19 @@
 <!doctype html>
 <html>
-    <body
-        style="margin: 0px"
-    >
+    <head>
+        <script>
+            function time() {
+                var date = new Date
+                date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
+                var ymdhis = date.toJSON()
+                var dow = date.toUTCString().substr(0, 3)
+                document.title = ymdhis.substring(11, 19) + ' ' + ymdhis.substr(0, 10) + ' ' + dow
+            }
+            var ref = setInterval(time, 1e3)
+            time()
+        </script>
+    </head>
+    <body style="margin: 0">
         <iframe
             src="/www/index.html"
             frameborder="0"
